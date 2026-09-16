@@ -37,7 +37,7 @@ def helpMessage() {
     Output (under --out_dir), and nothing else:
       1_fastq_merge/               one merged FASTQ per barcode
       2_fastq_filtered/            one fastplong-filtered FASTQ per barcode
-      QC/                          one fastplong JSON report per barcode
+      QC/                          one fastplong HTML report per barcode
       <run_name>-report.html       fastplong run summary report (from sequencing_summary)
     """.stripIndent()
 }
