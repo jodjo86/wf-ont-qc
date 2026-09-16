@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/jodjo86/ONT_QC/main/nextflow_schema.json",
-    "title": "QC_ONT pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/jodjo86/wf-ont-qc/main/nextflow_schema.json",
+    "title": "wf-ont-qc pipeline parameters",
     "description": "Merge Nanopore FASTQ by barcode and QC/preprocess with fastplong",
     "type": "object",
     "definitions": {
