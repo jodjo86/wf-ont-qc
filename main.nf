@@ -4,29 +4,47 @@ nextflow.enable.dsl = 2
 
 include { MERGE_FASTQ } from './modules/local/merge_fastq'
 include { FASTPLONG   } from './modules/local/fastplong'
+include { TOULLIGQC   } from './modules/local/toulligqc'
 
 def helpMessage() {
     log.info """
-    QC_ONT — merge ONT FASTQ by barcode, then QC/preprocess with fastplong.
+    QC_ONT — merge ONT FASTQ by barcode, QC/preprocess with fastplong, and
+    produce a toulligQC run report.
 
     Usage:
       nextflow run . --input <fastq_pass_dir> [--out_dir output]
 
     Required:
-      --input            Directory containing one sub-directory per barcode
-                          (e.g. fastq_pass/barcode01/*.fastq.gz), as produced by
-                          MinKNOW/Dorado basecalling.
+      --input                Directory containing one sub-directory per barcode
+                              (e.g. fastq_pass/barcode01/*.fastq.gz), as produced by
+                              MinKNOW/Dorado basecalling.
 
     Optional:
-      --out_dir          Output directory (default: ${params.out_dir})
-      --fastplong_args   Arguments passed to fastplong (default:
-                          '${params.fastplong_args}')
+      --out_dir              Output directory (default: ${params.out_dir})
+      --fastplong_args        Arguments passed to fastplong (default:
+                              '${params.fastplong_args}')
+      --sequencing_summary    Path to the MinKNOW/Dorado sequencing_summary*.txt
+                              file (default: auto-detected next to --input, i.e.
+                              in its parent directory)
+      --run_name              Name used in the toulligQC report (default: the
+                              run folder name, i.e. the parent directory of --input)
 
     Output (under --out_dir), and nothing else:
-      1_fastq_merge/     one merged FASTQ per barcode
-      2_fastq_filtered/  one fastplong-filtered FASTQ per barcode
-      QC/                one fastplong JSON report per barcode
+      1_fastq_merge/                        one merged FASTQ per barcode
+      2_fastq_filtered/                     one fastplong-filtered FASTQ per barcode
+      QC/                                   one fastplong JSON report per barcode
+      wf-ont-qc-<run_name>-report.html      toulligQC run report
     """.stripIndent()
+}
+
+def barcodeRange(names) {
+    def sorted = names.sort()
+    def prefix = sorted[0].replaceFirst(/\d+$/, '')
+    def pad    = (sorted[0] =~ /\d+$/)[0].length()
+    def nums   = sorted.collect { (it =~ /\d+$/)[0] as int }
+    def lo = nums.min()
+    def hi = nums.max()
+    "${prefix}${lo.toString().padLeft(pad, '0')}:${prefix}${hi.toString().padLeft(pad, '0')}"
 }
 
 workflow {
@@ -40,6 +58,21 @@ workflow {
         exit 1, "ERROR: --input is required (directory containing barcode* sub-directories of FASTQ files)."
     }
 
+    def run_dir  = file(params.input).getParent()
+    def run_name = params.run_name ?: run_dir.getName()
+
+    def seq_summary
+    if (params.sequencing_summary) {
+        seq_summary = file(params.sequencing_summary, checkIfExists: true)
+    } else {
+        def matches = run_dir.listFiles()?.findAll { it.name ==~ /sequencing_summary.*\.txt/ }
+        if (!matches || matches.size() != 1) {
+            exit 1, "ERROR: expected exactly one sequencing_summary*.txt in ${run_dir} " +
+                     "(found ${matches?.size() ?: 0}); use --sequencing_summary to specify it explicitly."
+        }
+        seq_summary = matches[0]
+    }
+
     ch_barcodes = Channel
         .fromPath("${params.input}/barcode*", type: 'dir', checkIfExists: true)
         .map { dir ->
@@ -50,4 +83,11 @@ workflow {
 
     MERGE_FASTQ(ch_barcodes)
     FASTPLONG(MERGE_FASTQ.out)
+
+    ch_barcode_range = ch_barcodes
+        .map { barcode, fq -> barcode }
+        .collect()
+        .map { names -> barcodeRange(names) }
+
+    TOULLIGQC(seq_summary, ch_barcode_range, run_name)
 }
