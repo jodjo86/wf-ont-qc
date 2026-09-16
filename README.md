@@ -30,11 +30,29 @@ dossier parent :
     └── unclassified/        ← ignoré (ne matche pas "barcode*")
 ```
 
+## Mode temps réel (`--watch_path`)
+
+Par défaut, `--input` est scanné une seule fois : le run MinKNOW doit donc déjà être terminé.
+Avec `--watch_path true`, le pipeline peut être lancé **pendant** que MinKNOW séquence encore :
+
+```
+nextflow run . --input .../fastq_pass --watch_path
+```
+
+Le pipeline surveille alors `--input` et traite chaque barcode dès que MinKNOW écrit
+`final_summary*.txt` dans le dossier parent (signe que le run est terminé). Pour arrêter la
+surveillance plus tôt, créez un fichier `STOP.<session id nextflow>.fastq` dans ce même dossier
+parent (le message de log au démarrage donne le nom exact).
+
+Si `final_summary*.txt` existe déjà au lancement (run déjà terminé), `--watch_path` se comporte
+comme un scan classique — pas d'attente inutile.
+
 ## Paramètres principaux
 
 | Paramètre                               | Défaut       | Description                                                            |
 |------------------------------------------|--------------|-------------------------------------------------------------------------|
 | `input`                                | *(requis)*   | Dossier contenant les sous-dossiers `barcodeXX/`                     |
+| `watch_path`                           | `false`      | Surveille `input` en continu (voir section ci-dessus)                 |
 | `out_dir`                              | `output`     | Dossier de sortie                                                     |
 | `fastplong_trim_front`                 | `20`         | Bases coupées en début de read                                        |
 | `fastplong_trim_tail`                  | `20`         | Bases coupées en fin de read                                          |

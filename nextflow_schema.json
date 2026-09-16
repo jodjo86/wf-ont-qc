@@ -26,6 +26,12 @@
                     "format": "directory-path",
                     "description": "Output directory where the results will be saved.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "watch_path": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Watch --input for new FASTQ files as MinKNOW/Dorado write them, so the pipeline can be launched alongside an in-progress MinKNOW run. Each barcode is merged/QC'd once MinKNOW writes final_summary*.txt next to --input (i.e. the run has finished); to stop watching earlier, create a file named STOP.<nextflow session id>.fastq next to --input.",
+                    "fa_icon": "fas fa-eye"
                 }
             }
         },

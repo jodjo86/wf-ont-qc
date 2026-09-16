@@ -13,6 +13,7 @@ def helpMessage() {
 
     Usage:
       nextflow run . --input <fastq_pass_dir> [--out_dir output]
+      nextflow run . --input <fastq_pass_dir> --watch_path   # launch alongside an in-progress MinKNOW run
 
     Required:
       --input                Directory containing one sub-directory per barcode
@@ -20,6 +21,13 @@ def helpMessage() {
                               MinKNOW/Dorado basecalling.
 
     Optional:
+      --watch_path                           Watch --input for new FASTQ files as MinKNOW/Dorado
+                                              write them, so the pipeline can be started while the
+                                              run is still going. Barcodes are merged/QC'd once
+                                              MinKNOW writes final_summary*.txt next to --input (the
+                                              run has finished); to stop watching earlier, create a
+                                              file named STOP.<nextflow session id>.fastq next to
+                                              --input (default: ${params.watch_path})
       --out_dir                              Output directory (default: ${params.out_dir})
       --fastplong_trim_front                 Bases trimmed from read start (default: ${params.fastplong_trim_front})
       --fastplong_trim_tail                  Bases trimmed from read end (default: ${params.fastplong_trim_tail})
@@ -43,6 +51,58 @@ def helpMessage() {
     """.stripIndent()
 }
 
+// Return the single file directly under `dir` matching `regex`, or null if there isn't exactly one.
+def findOne(dir, regex) {
+    def matches = dir.listFiles()?.findAll { it.name ==~ regex }
+    return (matches && matches.size() == 1) ? matches[0] : null
+}
+
+// Extract protocol_group_id from a MinKNOW/Dorado final_summary*.txt file.
+def protocolGroupId(fs_file) {
+    def line = fs_file.readLines().find { it.startsWith('protocol_group_id=') }
+    if (!line) {
+        error "no protocol_group_id field found in ${fs_file}; use --run_name to specify the run name explicitly."
+    }
+    line.split('=', 2)[1].trim()
+}
+
+// Resolve the sequencing_summary*.txt file to use, as a channel: from --sequencing_summary if
+// given, by scanning `run_dir` for a single match, or (with --watch_path) by waiting for MinKNOW
+// to write it once the run finishes.
+def resolveSequencingSummary(run_dir) {
+    if (params.sequencing_summary) {
+        return Channel.value(file(params.sequencing_summary, checkIfExists: true))
+    }
+    def found = findOne(run_dir, /sequencing_summary.*\.txt/)
+    if (found) {
+        return Channel.value(found)
+    }
+    if (params.watch_path) {
+        log.info "Waiting for MinKNOW to write sequencing_summary*.txt in ${run_dir}..."
+        return Channel.watchPath("${run_dir}/sequencing_summary*.txt").first()
+    }
+    exit 1, "ERROR: expected exactly one sequencing_summary*.txt in ${run_dir}; " +
+             "use --sequencing_summary to specify it explicitly."
+}
+
+// Resolve the run name for the run-level report, as a channel: from --run_name if given, by
+// reading protocol_group_id from final_summary*.txt in `run_dir`, or (with --watch_path) by
+// waiting for MinKNOW to write it once the run finishes.
+def resolveRunName(run_dir, final_summary_file) {
+    if (params.run_name) {
+        return Channel.value(params.run_name)
+    }
+    if (final_summary_file) {
+        return Channel.value(protocolGroupId(final_summary_file))
+    }
+    if (params.watch_path) {
+        log.info "Waiting for MinKNOW to write final_summary*.txt in ${run_dir}..."
+        return Channel.watchPath("${run_dir}/final_summary*.txt").first().map { protocolGroupId(it) }
+    }
+    exit 1, "ERROR: expected exactly one final_summary*.txt in ${run_dir}; " +
+             "use --run_name to specify the run name explicitly."
+}
+
 workflow {
     if (params.help) {
         helpMessage()
@@ -54,45 +114,42 @@ workflow {
         exit 1, "ERROR: --input is required (directory containing barcode* sub-directories of FASTQ files)."
     }
 
-    def run_dir = file(params.input).getParent()
+    def run_dir            = file(params.input).getParent()
+    def fastq_glob         = "${params.input}/barcode*/*.{fastq,fq,fastq.gz,fq.gz}"
+    def final_summary_file = findOne(run_dir, /final_summary.*\.txt/)
 
-    def run_name = params.run_name
-    if (!run_name) {
-        def fs_matches = run_dir.listFiles()?.findAll { it.name ==~ /final_summary.*\.txt/ }
-        if (!fs_matches || fs_matches.size() != 1) {
-            exit 1, "ERROR: expected exactly one final_summary*.txt in ${run_dir} " +
-                     "(found ${fs_matches?.size() ?: 0}); use --run_name to specify the run name explicitly."
-        }
-        def line = fs_matches[0].readLines().find { it.startsWith('protocol_group_id=') }
-        if (!line) {
-            exit 1, "ERROR: no protocol_group_id field found in ${fs_matches[0]}; " +
-                     "use --run_name to specify the run name explicitly."
-        }
-        run_name = line.split('=', 2)[1].trim()
-    }
+    if (params.watch_path && !final_summary_file) {
+        // The run isn't finished yet: watch --input for new FASTQ files as MinKNOW/Dorado write
+        // them, and stop as soon as MinKNOW writes final_summary*.txt (or the user creates the
+        // STOP sentinel), the same signal used below to know the run-level files are ready too.
+        def stop_filename = "STOP.${workflow.sessionId}.fastq"
+        log.info "Watching ${params.input} for new FASTQ files as MinKNOW writes them."
+        log.info "Processing starts automatically once MinKNOW writes final_summary*.txt in " +
+                  "${run_dir}; to stop watching earlier, create ${run_dir}/${stop_filename}"
 
-    def seq_summary
-    if (params.sequencing_summary) {
-        seq_summary = file(params.sequencing_summary, checkIfExists: true)
+        ch_watched = Channel
+            .watchPath("${params.input}/**")
+            .filter { it.name ==~ /.*\.(fastq|fq)(\.gz)?$/ }
+            .mix(
+                Channel.watchPath("${run_dir}/final_summary*.txt"),
+                Channel.watchPath("${run_dir}/${stop_filename}")
+            )
+            .until { it.name ==~ /final_summary.*\.txt/ || it.name == stop_filename }
+
+        ch_fastq_files = Channel.fromPath(fastq_glob).concat(ch_watched)
     } else {
-        def matches = run_dir.listFiles()?.findAll { it.name ==~ /sequencing_summary.*\.txt/ }
-        if (!matches || matches.size() != 1) {
-            exit 1, "ERROR: expected exactly one sequencing_summary*.txt in ${run_dir} " +
-                     "(found ${matches?.size() ?: 0}); use --sequencing_summary to specify it explicitly."
-        }
-        seq_summary = matches[0]
+        ch_fastq_files = Channel.fromPath(fastq_glob, checkIfExists: true)
     }
 
-    ch_barcodes = Channel
-        .fromPath("${params.input}/barcode*", type: 'dir', checkIfExists: true)
-        .map { dir ->
-            def fq = dir.listFiles().findAll { it.name ==~ /.*\.(fastq|fq)(\.gz)?$/ }
-            tuple(dir.name, fq)
-        }
-        .filter { barcode, fq -> fq }
+    ch_barcodes = ch_fastq_files
+        .map { fq -> tuple(fq.getParent().getName(), fq) }
+        .groupTuple()
 
     MERGE_FASTQ(ch_barcodes)
     FASTPLONG(MERGE_FASTQ.out)
 
-    FASTPLONG_SUMMARY(seq_summary, run_name)
+    FASTPLONG_SUMMARY(
+        resolveSequencingSummary(run_dir),
+        resolveRunName(run_dir, final_summary_file)
+    )
 }
