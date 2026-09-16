@@ -10,7 +10,7 @@ process TOULLIGQC {
     val  run_name
 
     output:
-    path "wf-ont-qc-${run_name}-report.html"
+    path "${run_name}-report.html"
 
     script:
     """
@@ -18,7 +18,7 @@ process TOULLIGQC {
         --report-name "${run_name}" \\
         --barcoding \\
         --sequencing-summary-source ${sequencing_summary} \\
-        --html-report-path "wf-ont-qc-${run_name}-report.html" \\
+        --html-report-path "${run_name}-report.html" \\
         --barcodes ${barcode_range} \\
         --force
     """

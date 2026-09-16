@@ -20,20 +20,25 @@ def helpMessage() {
                               MinKNOW/Dorado basecalling.
 
     Optional:
-      --out_dir              Output directory (default: ${params.out_dir})
-      --fastplong_args        Arguments passed to fastplong (default:
-                              '${params.fastplong_args}')
-      --sequencing_summary    Path to the MinKNOW/Dorado sequencing_summary*.txt
-                              file (default: auto-detected next to --input, i.e.
-                              in its parent directory)
-      --run_name              Name used in the toulligQC report (default: the
-                              run folder name, i.e. the parent directory of --input)
+      --out_dir                              Output directory (default: ${params.out_dir})
+      --fastplong_trim_front                 Bases trimmed from read start (default: ${params.fastplong_trim_front})
+      --fastplong_trim_tail                  Bases trimmed from read end (default: ${params.fastplong_trim_tail})
+      --fastplong_disable_adapter_trimming   Disable adapter trimming (default: ${params.fastplong_disable_adapter_trimming})
+      --fastplong_discard_chimeric_reads     Discard chimeric reads (default: ${params.fastplong_discard_chimeric_reads})
+      --fastplong_mean_qual                  Minimum mean quality to keep a read (default: ${params.fastplong_mean_qual})
+      --fastplong_length_required            Minimum read length to keep a read (default: ${params.fastplong_length_required})
+      --fastplong_length_limit               Maximum read length allowed (default: ${params.fastplong_length_limit})
+      --sequencing_summary                   Path to the MinKNOW/Dorado sequencing_summary*.txt
+                                              file (default: auto-detected next to --input, i.e.
+                                              in its parent directory)
+      --run_name                             Name used in the toulligQC report (default: the
+                                              run folder name, i.e. the parent directory of --input)
 
     Output (under --out_dir), and nothing else:
-      1_fastq_merge/                        one merged FASTQ per barcode
-      2_fastq_filtered/                     one fastplong-filtered FASTQ per barcode
-      QC/                                   one fastplong JSON report per barcode
-      wf-ont-qc-<run_name>-report.html      toulligQC run report
+      1_fastq_merge/             one merged FASTQ per barcode
+      2_fastq_filtered/          one fastplong-filtered FASTQ per barcode
+      QC/                        one fastplong JSON report per barcode
+      <run_name>-report.html     toulligQC run report
     """.stripIndent()
 }
 

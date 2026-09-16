@@ -34,11 +34,47 @@
             "type": "object",
             "fa_icon": "fas fa-filter",
             "properties": {
-                "fastplong_args": {
-                    "type": "string",
-                    "default": "--trim_front 20 --trim_tail 20 --disable_adapter_trimming --discard_chimeric_reads --mean_qual 14 --length_required 300 --length_limit 10000",
-                    "description": "Arguments passed as-is to fastplong.",
-                    "fa_icon": "fas fa-sliders-h"
+                "fastplong_trim_front": {
+                    "type": "integer",
+                    "default": 20,
+                    "description": "Number of bases to trim from the front (5') of each read.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "fastplong_trim_tail": {
+                    "type": "integer",
+                    "default": 20,
+                    "description": "Number of bases to trim from the tail (3') of each read.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "fastplong_disable_adapter_trimming": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Disable adapter trimming.",
+                    "fa_icon": "fas fa-ban"
+                },
+                "fastplong_discard_chimeric_reads": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Discard chimeric reads.",
+                    "fa_icon": "fas fa-unlink"
+                },
+                "fastplong_mean_qual": {
+                    "type": "integer",
+                    "default": 14,
+                    "description": "Minimum mean quality score required to keep a read.",
+                    "fa_icon": "fas fa-star-half-alt"
+                },
+                "fastplong_length_required": {
+                    "type": "integer",
+                    "default": 300,
+                    "description": "Minimum read length required to keep a read.",
+                    "fa_icon": "fas fa-ruler-horizontal"
+                },
+                "fastplong_length_limit": {
+                    "type": "integer",
+                    "default": 10000,
+                    "description": "Maximum read length allowed (0 for no limit).",
+                    "fa_icon": "fas fa-ruler-horizontal"
                 },
                 "sequencing_summary": {
                     "type": "string",

@@ -30,13 +30,19 @@ avec le `sequencing_summary*.txt` du run dans le dossier parent :
 
 ## Paramètres principaux
 
-| Paramètre              | Défaut      | Description                                              |
-|-------------------------|-------------|-----------------------------------------------------------|
-| `input`                 | *(requis)*  | Dossier contenant les sous-dossiers `barcodeXX/`           |
-| `out_dir`               | `output`    | Dossier de sortie                                          |
-| `fastplong_args`        | voir schéma | Arguments passés tels quels à `fastplong`                  |
-| `sequencing_summary`    | auto-détecté | Fichier `sequencing_summary*.txt` (sinon cherché à côté de `input`) |
-| `run_name`              | auto-détecté | Nom du run utilisé dans le rapport toulligQC (sinon le nom du dossier parent de `input`) |
+| Paramètre                               | Défaut       | Description                                                            |
+|------------------------------------------|--------------|-------------------------------------------------------------------------|
+| `input`                                | *(requis)*   | Dossier contenant les sous-dossiers `barcodeXX/`                     |
+| `out_dir`                              | `output`     | Dossier de sortie                                                     |
+| `fastplong_trim_front`                 | `20`         | Bases coupées en début de read                                        |
+| `fastplong_trim_tail`                  | `20`         | Bases coupées en fin de read                                          |
+| `fastplong_disable_adapter_trimming`   | `true`       | Désactive le trimming d'adaptateurs                                   |
+| `fastplong_discard_chimeric_reads`     | `true`       | Rejette les reads chimériques                                         |
+| `fastplong_mean_qual`                  | `14`         | Qualité moyenne minimale pour garder un read                          |
+| `fastplong_length_required`            | `300`        | Longueur minimale pour garder un read                                 |
+| `fastplong_length_limit`               | `10000`      | Longueur maximale autorisée                                           |
+| `sequencing_summary`                   | auto-détecté | Fichier `sequencing_summary*.txt` (sinon cherché à côté de `input`)   |
+| `run_name`                             | auto-détecté | Nom du run utilisé dans le rapport toulligQC (sinon le nom du dossier parent de `input`) |
 
 La plage de barcodes passée à toulligQC (`--barcodes barcodeXX:barcodeYY`) est
 calculée automatiquement à partir des dossiers `barcodeXX/` réellement présents
@@ -49,7 +55,7 @@ output/
 ├── 1_fastq_merge/                     barcodeXX.fastq.gz   (FASTQ fusionné, 1 par barcode)
 ├── 2_fastq_filtered/                  barcodeXX.fastq.gz   (FASTQ filtré par fastplong, 1 par barcode)
 ├── QC/                                barcodeXX.json        (rapport fastplong, 1 par barcode)
-└── wf-ont-qc-<run_name>-report.html   rapport toulligQC du run (tous barcodes)
+└── <run_name>-report.html             rapport toulligQC du run (tous barcodes)
 ```
 
 Le rapport HTML de fastplong n'est pas copié dans `out_dir` (seul le JSON l'est).

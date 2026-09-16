@@ -14,6 +14,8 @@ process FASTPLONG {
     tuple val(barcode), path("${barcode}.json"),     emit: json
 
     script:
+    def disable_adapter_trimming = params.fastplong_disable_adapter_trimming ? '--disable_adapter_trimming' : ''
+    def discard_chimeric_reads   = params.fastplong_discard_chimeric_reads   ? '--discard_chimeric_reads'   : ''
     """
     fastplong \\
         -i ${merged_fastq} \\
@@ -21,6 +23,12 @@ process FASTPLONG {
         --json ${barcode}.json \\
         --html ${barcode}.discard.html \\
         --thread ${task.cpus} \\
-        ${params.fastplong_args}
+        --trim_front ${params.fastplong_trim_front} \\
+        --trim_tail ${params.fastplong_trim_tail} \\
+        --mean_qual ${params.fastplong_mean_qual} \\
+        --length_required ${params.fastplong_length_required} \\
+        --length_limit ${params.fastplong_length_limit} \\
+        ${disable_adapter_trimming} \\
+        ${discard_chimeric_reads}
     """
 }
