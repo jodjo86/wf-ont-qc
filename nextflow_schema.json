@@ -1,0 +1,71 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/jodjo86/ONT_QC/main/nextflow_schema.json",
+    "title": "QC_ONT pipeline parameters",
+    "description": "Merge Nanopore FASTQ by barcode and QC/preprocess with fastplong",
+    "type": "object",
+    "definitions": {
+        "input_output_options": {
+            "title": "Input/output options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "required": [
+                "input"
+            ],
+            "properties": {
+                "input": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing one sub-directory per barcode (e.g. fastq_pass/barcode01/*.fastq.gz), as produced by MinKNOW/Dorado basecalling.",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "outdir": {
+                    "type": "string",
+                    "default": "output",
+                    "format": "directory-path",
+                    "description": "Output directory where the results will be saved.",
+                    "fa_icon": "fas fa-folder-open"
+                }
+            }
+        },
+        "qc_options": {
+            "title": "QC options",
+            "type": "object",
+            "fa_icon": "fas fa-filter",
+            "properties": {
+                "fastplong_args": {
+                    "type": "string",
+                    "default": "--trim_front 20 --trim_tail 20 --disable_adapter_trimming --discard_chimeric_reads --mean_qual 14 --length_required 300 --length_limit 10000",
+                    "description": "Arguments passed as-is to fastplong.",
+                    "fa_icon": "fas fa-sliders-h"
+                }
+            }
+        },
+        "generic_options": {
+            "title": "Generic options",
+            "type": "object",
+            "fa_icon": "fas fa-file-import",
+            "properties": {
+                "help": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Display help text.",
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/input_output_options"
+        },
+        {
+            "$ref": "#/definitions/qc_options"
+        },
+        {
+            "$ref": "#/definitions/generic_options"
+        }
+    ]
+}
