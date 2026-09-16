@@ -10,7 +10,7 @@ def helpMessage() {
     QC_ONT — merge ONT FASTQ by barcode, then QC/preprocess with fastplong.
 
     Usage:
-      nextflow run . --input <fastq_pass_dir> [--outdir output]
+      nextflow run . --input <fastq_pass_dir> [--out_dir output]
 
     Required:
       --input            Directory containing one sub-directory per barcode
@@ -18,11 +18,11 @@ def helpMessage() {
                           MinKNOW/Dorado basecalling.
 
     Optional:
-      --outdir           Output directory (default: ${params.outdir})
+      --out_dir          Output directory (default: ${params.out_dir})
       --fastplong_args   Arguments passed to fastplong (default:
                           '${params.fastplong_args}')
 
-    Output (under --outdir), and nothing else:
+    Output (under --out_dir), and nothing else:
       1_fastq_merge/     one merged FASTQ per barcode
       2_fastq_filtered/  one fastplong-filtered FASTQ per barcode
       QC/                one fastplong JSON report per barcode

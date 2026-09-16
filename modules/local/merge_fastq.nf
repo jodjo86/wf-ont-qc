@@ -4,7 +4,7 @@ process MERGE_FASTQ {
     container 'bash:5.2'
 
     publishDir(
-        path: "${params.outdir}/1_fastq_merge",
+        path: "${params.out_dir}/1_fastq_merge",
         mode: 'copy',
         saveAs: { it.replace('.merged.fastq.gz', '.fastq.gz') }
     )

@@ -3,8 +3,8 @@ process FASTPLONG {
     label 'process_medium'
     container 'quay.io/biocontainers/fastplong:0.7.0--h43da1c4_0'
 
-    publishDir("${params.outdir}/2_fastq_filtered", mode: 'copy', pattern: '*.fastq.gz')
-    publishDir("${params.outdir}/QC",               mode: 'copy', pattern: '*.json')
+    publishDir("${params.out_dir}/2_fastq_filtered", mode: 'copy', pattern: '*.fastq.gz')
+    publishDir("${params.out_dir}/QC",               mode: 'copy', pattern: '*.json')
 
     input:
     tuple val(barcode), path(merged_fastq)

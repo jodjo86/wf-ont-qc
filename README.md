@@ -27,7 +27,7 @@ fastq_pass/
 | Paramètre          | Défaut   | Description                                      |
 |---------------------|----------|---------------------------------------------------|
 | `input`             | *(requis)* | Dossier contenant les sous-dossiers `barcodeXX/` |
-| `outdir`            | `output` | Dossier de sortie                                  |
+| `out_dir`           | `output` | Dossier de sortie                                  |
 | `fastplong_args`    | voir schéma | Arguments passés tels quels à `fastplong`       |
 
 ## Sortie
@@ -39,4 +39,4 @@ output/
 └── QC/                  barcodeXX.json       (rapport fastplong, 1 par barcode)
 ```
 
-Le rapport HTML de fastplong n'est pas copié dans `outdir` (seul le JSON l'est).
+Le rapport HTML de fastplong n'est pas copié dans `out_dir` (seul le JSON l'est).

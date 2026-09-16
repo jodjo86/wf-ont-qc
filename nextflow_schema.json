@@ -20,7 +20,7 @@
                     "description": "Directory containing one sub-directory per barcode (e.g. fastq_pass/barcode01/*.fastq.gz), as produced by MinKNOW/Dorado basecalling.",
                     "fa_icon": "fas fa-folder-open"
                 },
-                "outdir": {
+                "out_dir": {
                     "type": "string",
                     "default": "output",
                     "format": "directory-path",
