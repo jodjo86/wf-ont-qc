@@ -8,8 +8,8 @@ rapport de run.
    concaténés en un seul fichier.
 2. **QC / filtrage** — fastplong filtre par qualité et longueur, puis produit un
    rapport JSON par barcode.
-3. **Rapport de run** — fastplong génère un rapport HTML + JSON unique à partir
-   du `sequencing_summary.txt` du run (toutes stats confondues, tous barcodes).
+3. **Rapport de run** — fastplong génère un rapport HTML unique à partir du
+   `sequencing_summary.txt` du run (toutes stats confondues, tous barcodes).
 
 ## Entrée
 
@@ -48,11 +48,9 @@ avec le `sequencing_summary*.txt` du run dans le dossier parent :
 
 ```
 output/
-├── 1_fastq_merge/               barcodeXX.fastq.gz          (FASTQ fusionné, 1 par barcode)
-├── 2_fastq_filtered/            barcodeXX.fastq.gz          (FASTQ filtré par fastplong, 1 par barcode)
-├── QC/
-│   ├── barcodeXX.json           (rapport fastplong, 1 par barcode)
-│   └── <run_name>_fastplong.json (rapport JSON du run, à partir de sequencing_summary)
+├── 1_fastq_merge/               barcodeXX.fastq.gz   (FASTQ fusionné, 1 par barcode)
+├── 2_fastq_filtered/            barcodeXX.fastq.gz   (FASTQ filtré par fastplong, 1 par barcode)
+├── QC/                          barcodeXX.json        (rapport fastplong, 1 par barcode)
 └── <run_name>-report.html       rapport HTML du run (à partir de sequencing_summary)
 ```
 
