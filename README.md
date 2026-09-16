@@ -14,11 +14,13 @@ rapport de run.
 ## Entrée
 
 Un dossier avec un sous-dossier par barcode, comme produit par MinKNOW/Dorado,
-avec le `sequencing_summary*.txt` du run dans le dossier parent :
+avec le `sequencing_summary*.txt` et le `final_summary*.txt` du run dans le
+dossier parent :
 
 ```
 20260826_.../
 ├── sequencing_summary_FBG66482_91a28fca.txt
+├── final_summary_FBG66482_91a28fca.txt
 └── fastq_pass/            ← c'est ce dossier qu'on passe à --input
     ├── barcode01/
     │   ├── xxx_0.fastq.gz
@@ -42,7 +44,7 @@ avec le `sequencing_summary*.txt` du run dans le dossier parent :
 | `fastplong_length_required`            | `300`        | Longueur minimale pour garder un read                                 |
 | `fastplong_length_limit`               | `10000`      | Longueur maximale autorisée                                           |
 | `sequencing_summary`                   | auto-détecté | Fichier `sequencing_summary*.txt` (sinon cherché à côté de `input`)   |
-| `run_name`                             | auto-détecté | Nom du run utilisé dans le rapport (sinon le nom du dossier parent de `input`) |
+| `run_name`                             | auto-détecté | Nom du run utilisé dans le rapport (sinon `protocol_group_id` lu dans `final_summary*.txt`, à côté de `input`) |
 
 ## Sortie
 

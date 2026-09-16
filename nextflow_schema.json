@@ -84,7 +84,7 @@
                 },
                 "run_name": {
                     "type": "string",
-                    "description": "Name used for the run-level report. If left empty, the parent directory name of --input is used.",
+                    "description": "Name used for the run-level report. If left empty, it is read from the protocol_group_id field of final_summary*.txt in the parent directory of --input (there must be exactly one match).",
                     "fa_icon": "fas fa-signature"
                 }
             }

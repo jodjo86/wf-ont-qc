@@ -32,7 +32,8 @@ def helpMessage() {
                                               file (default: auto-detected next to --input, i.e.
                                               in its parent directory)
       --run_name                             Name used for the run-level report (default: the
-                                              run folder name, i.e. the parent directory of --input)
+                                              protocol_group_id read from final_summary*.txt
+                                              next to --input)
 
     Output (under --out_dir), and nothing else:
       1_fastq_merge/               one merged FASTQ per barcode
@@ -53,8 +54,22 @@ workflow {
         exit 1, "ERROR: --input is required (directory containing barcode* sub-directories of FASTQ files)."
     }
 
-    def run_dir  = file(params.input).getParent()
-    def run_name = params.run_name ?: run_dir.getName()
+    def run_dir = file(params.input).getParent()
+
+    def run_name = params.run_name
+    if (!run_name) {
+        def fs_matches = run_dir.listFiles()?.findAll { it.name ==~ /final_summary.*\.txt/ }
+        if (!fs_matches || fs_matches.size() != 1) {
+            exit 1, "ERROR: expected exactly one final_summary*.txt in ${run_dir} " +
+                     "(found ${fs_matches?.size() ?: 0}); use --run_name to specify the run name explicitly."
+        }
+        def line = fs_matches[0].readLines().find { it.startsWith('protocol_group_id=') }
+        if (!line) {
+            exit 1, "ERROR: no protocol_group_id field found in ${fs_matches[0]}; " +
+                     "use --run_name to specify the run name explicitly."
+        }
+        run_name = line.split('=', 2)[1].trim()
+    }
 
     def seq_summary
     if (params.sequencing_summary) {
