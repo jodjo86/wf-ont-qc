@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/jodjo86/wf-ont-qc/main/nextflow_schema.json",
     "title": "wf-ont-qc pipeline parameters",
-    "description": "Merge Nanopore FASTQ by barcode, QC/preprocess with fastplong, and produce a toulligQC report",
+    "description": "Merge Nanopore FASTQ by barcode, QC/preprocess with fastplong, and produce a run-level fastplong summary report",
     "type": "object",
     "definitions": {
         "input_output_options": {
@@ -84,7 +84,7 @@
                 },
                 "run_name": {
                     "type": "string",
-                    "description": "Name used for the toulligQC report. If left empty, the parent directory name of --input is used.",
+                    "description": "Name used for the run-level report. If left empty, the parent directory name of --input is used.",
                     "fa_icon": "fas fa-signature"
                 }
             }

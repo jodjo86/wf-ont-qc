@@ -2,14 +2,14 @@
 
 nextflow.enable.dsl = 2
 
-include { MERGE_FASTQ } from './modules/local/merge_fastq'
-include { FASTPLONG   } from './modules/local/fastplong'
-include { TOULLIGQC   } from './modules/local/toulligqc'
+include { MERGE_FASTQ       } from './modules/local/merge_fastq'
+include { FASTPLONG         } from './modules/local/fastplong'
+include { FASTPLONG_SUMMARY } from './modules/local/fastplong_summary'
 
 def helpMessage() {
     log.info """
     QC_ONT — merge ONT FASTQ by barcode, QC/preprocess with fastplong, and
-    produce a toulligQC run report.
+    produce a run-level fastplong summary report.
 
     Usage:
       nextflow run . --input <fastq_pass_dir> [--out_dir output]
@@ -31,25 +31,16 @@ def helpMessage() {
       --sequencing_summary                   Path to the MinKNOW/Dorado sequencing_summary*.txt
                                               file (default: auto-detected next to --input, i.e.
                                               in its parent directory)
-      --run_name                             Name used in the toulligQC report (default: the
+      --run_name                             Name used for the run-level report (default: the
                                               run folder name, i.e. the parent directory of --input)
 
     Output (under --out_dir), and nothing else:
-      1_fastq_merge/             one merged FASTQ per barcode
-      2_fastq_filtered/          one fastplong-filtered FASTQ per barcode
-      QC/                        one fastplong JSON report per barcode
-      <run_name>-report.html     toulligQC run report
+      1_fastq_merge/               one merged FASTQ per barcode
+      2_fastq_filtered/            one fastplong-filtered FASTQ per barcode
+      QC/                          one fastplong JSON report per barcode, plus the
+                                    run-level <run_name>_fastplong.json summary
+      <run_name>-report.html       fastplong run summary report (from sequencing_summary)
     """.stripIndent()
-}
-
-def barcodeRange(names) {
-    def sorted = names.sort()
-    def prefix = sorted[0].replaceFirst(/\d+$/, '')
-    def pad    = (sorted[0] =~ /\d+$/)[0].length()
-    def nums   = sorted.collect { (it =~ /\d+$/)[0] as int }
-    def lo = nums.min()
-    def hi = nums.max()
-    "${prefix}${lo.toString().padLeft(pad, '0')}:${prefix}${hi.toString().padLeft(pad, '0')}"
 }
 
 workflow {
@@ -89,10 +80,5 @@ workflow {
     MERGE_FASTQ(ch_barcodes)
     FASTPLONG(MERGE_FASTQ.out)
 
-    ch_barcode_range = ch_barcodes
-        .map { barcode, fq -> barcode }
-        .collect()
-        .map { names -> barcodeRange(names) }
-
-    TOULLIGQC(seq_summary, ch_barcode_range, run_name)
+    FASTPLONG_SUMMARY(seq_summary, run_name)
 }
