@@ -107,7 +107,7 @@ un tag.
 
 **Donc, à chaque changement mergé sur `main` qui doit être visible comme
 nouvelle version dans EPI2ME Desktop :**
-1. Bumper `manifest.version` dans `nextflow.config` (actuellement `1.2.0`).
+1. Bumper `manifest.version` dans `nextflow.config` (actuellement `1.2.1`).
 2. Créer un tag git correspondant, préfixé `v` (convention ONT) :
    `git tag v<version> && git push origin v<version>`.
 3. Idéalement, créer aussi une release GitHub sur ce tag.

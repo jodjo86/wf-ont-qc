@@ -17,7 +17,8 @@
                 "input": {
                     "type": "string",
                     "format": "directory-path",
-                    "description": "Directory containing one sub-directory per barcode (e.g. fastq_pass/barcode01/*.fastq.gz), as produced by MinKNOW/Dorado basecalling.",
+                    "description": "The fastq_pass folder of the MinKNOW run, e.g. /var/lib/minknow/data/<run>/no_sample_id/<id>/fastq_pass (not the run folder itself).",
+                    "help_text": "One sample per barcode* sub-folder; unclassified/ is ignored. Results are written to output/ next to fastq_pass.",
                     "fa_icon": "fas fa-folder-open"
                 },
                 "out_dir": {

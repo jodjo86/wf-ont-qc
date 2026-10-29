@@ -16,9 +16,8 @@ def helpMessage() {
       nextflow run . --input <fastq_pass_dir> --watch_path   # launch alongside an in-progress MinKNOW run
 
     Required:
-      --input                Directory containing one sub-directory per barcode
-                              (e.g. fastq_pass/barcode01/*.fastq.gz), as produced by
-                              MinKNOW/Dorado basecalling.
+      --input                The fastq_pass folder of the MinKNOW run (not the run folder
+                              itself), e.g. /var/lib/minknow/data/<run>/no_sample_id/<id>/fastq_pass.
 
     Optional:
       --watch_path                           Watch --input for new FASTQ files as MinKNOW/Dorado
