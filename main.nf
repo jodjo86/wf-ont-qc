@@ -28,7 +28,10 @@ def helpMessage() {
                                               run has finished); to stop watching earlier, create a
                                               file named STOP.<nextflow session id>.fastq next to
                                               --input (default: ${params.watch_path})
-      --out_dir                              Output directory (default: ${params.out_dir})
+      --out_dir                              Directory that only receives <run_name>-report.html, so
+                                              EPI2ME Desktop can display it (default: ${params.out_dir})
+      --run_out_dir                          Directory receiving all results (default: output/ next
+                                              to --input, i.e. in the MinKNOW run directory)
       --fastplong_trim_front                 Bases trimmed from read start (default: ${params.fastplong_trim_front})
       --fastplong_trim_tail                  Bases trimmed from read end (default: ${params.fastplong_trim_tail})
       --fastplong_disable_adapter_trimming   Disable adapter trimming (default: ${params.fastplong_disable_adapter_trimming})
@@ -43,11 +46,13 @@ def helpMessage() {
                                               protocol_group_id read from final_summary*.txt
                                               next to --input)
 
-    Output (under --out_dir), and nothing else:
+    Output under --run_out_dir:
       1_fastq_merge/               one merged FASTQ per barcode
       2_fastq_filtered/            one fastplong-filtered FASTQ per barcode
       QC/                          one fastplong HTML report per barcode
       <run_name>-report.html       fastplong run summary report (from sequencing_summary)
+    Output under --out_dir, and nothing else:
+      <run_name>-report.html       copy of the run summary report
     """.stripIndent()
 }
 

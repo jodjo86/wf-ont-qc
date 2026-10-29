@@ -24,7 +24,13 @@
                     "type": "string",
                     "default": "output",
                     "format": "directory-path",
-                    "description": "Output directory where the results will be saved.",
+                    "description": "Directory that only receives <run_name>-report.html, so EPI2ME Desktop can display it. All other results go to run_out_dir.",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "run_out_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory where all results (merged/filtered FASTQ, per-barcode QC reports, run report) will be saved. If left empty, output/ next to --input (i.e. in the MinKNOW run directory) is used.",
                     "fa_icon": "fas fa-folder-open"
                 },
                 "watch_path": {

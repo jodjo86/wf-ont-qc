@@ -17,8 +17,11 @@ nextflow.config                manifest + params + docker + resources par label
 nextflow_schema.json           généré à la main (pas nf-core), doit rester synchro avec params{} et l'aide de main.nf
 ```
 
-Sortie sous `--out_dir` (rien d'autre) :
-`1_fastq_merge/`, `2_fastq_filtered/`, `QC/`, `<run_name>-report.html`.
+Sortie sous `--run_out_dir` (défaut : `<run_dir>/output`, calculé dans chaque
+module depuis `params.input`) : `1_fastq_merge/`, `2_fastq_filtered/`, `QC/`,
+`<run_name>-report.html`. `--out_dir` (imposé par EPI2ME Desktop =
+`instances/<id>/output`) ne reçoit **que** `<run_name>-report.html`, pour
+qu'EPI2ME l'affiche à la fin — ne pas le supprimer de là.
 
 ## Entrée attendue (structure MinKNOW/Dorado)
 
@@ -104,7 +107,7 @@ un tag.
 
 **Donc, à chaque changement mergé sur `main` qui doit être visible comme
 nouvelle version dans EPI2ME Desktop :**
-1. Bumper `manifest.version` dans `nextflow.config` (actuellement `1.1.0`).
+1. Bumper `manifest.version` dans `nextflow.config` (actuellement `1.2.0`).
 2. Créer un tag git correspondant, préfixé `v` (convention ONT) :
    `git tag v<version> && git push origin v<version>`.
 3. Idéalement, créer aussi une release GitHub sur ce tag.

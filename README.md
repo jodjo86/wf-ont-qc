@@ -53,7 +53,8 @@ comme un scan classique — pas d'attente inutile.
 |------------------------------------------|--------------|-------------------------------------------------------------------------|
 | `input`                                | *(requis)*   | Dossier contenant les sous-dossiers `barcodeXX/`                     |
 | `watch_path`                           | `false`      | Surveille `input` en continu (voir section ci-dessus)                 |
-| `out_dir`                              | `output`     | Dossier de sortie                                                     |
+| `out_dir`                              | `output`     | Ne reçoit que `<run_name>-report.html` (affiché par EPI2ME Desktop)   |
+| `run_out_dir`                          | auto         | Reçoit tous les résultats (défaut : `output/` à côté de `input`, dans le dossier de run MinKNOW) |
 | `fastplong_trim_front`                 | `20`         | Bases coupées en début de read                                        |
 | `fastplong_trim_tail`                  | `20`         | Bases coupées en fin de read                                          |
 | `fastplong_disable_adapter_trimming`   | `true`       | Désactive le trimming d'adaptateurs                                   |
@@ -66,10 +67,19 @@ comme un scan classique — pas d'attente inutile.
 
 ## Sortie
 
+Tous les résultats vont dans `run_out_dir`, par défaut `output/` dans le
+dossier de run MinKNOW (à côté de `fastq_pass/`), par ex.
+`/var/lib/minknow/data/<run>/no_sample_id/<id>/output/` :
+
 ```
-output/
+<run_dir>/output/
 ├── 1_fastq_merge/               barcodeXX.fastq.gz   (FASTQ fusionné, 1 par barcode)
 ├── 2_fastq_filtered/            barcodeXX.fastq.gz   (FASTQ filtré par fastplong, 1 par barcode)
 ├── QC/                          barcodeXX.html        (rapport fastplong, 1 par barcode)
 └── <run_name>-report.html       rapport HTML du run (à partir de sequencing_summary)
 ```
+
+`out_dir` (dans EPI2ME Desktop : `~/epi2melabs/instances/<id>/output/`) ne
+contient qu'une copie de `<run_name>-report.html`, pour qu'EPI2ME l'affiche à
+la fin du workflow. L'utilisateur qui lance EPI2ME doit avoir le droit
+d'écrire dans le dossier de run MinKNOW.
